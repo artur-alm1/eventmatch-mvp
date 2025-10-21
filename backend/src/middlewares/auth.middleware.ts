@@ -1,28 +1,20 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyToken } from '../utils/jwt';
 
-export interface AuthRequest extends Request {
-  userId?: string;
-}
-
-export function authMiddleware(
-  req: AuthRequest,
-  res: Response,
-  next: NextFunction
-) {
+export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
 
-  if (!authHeader) {
-    return res.status(401).json({ error: 'Token não fornecido' });
+  if (!authHeader?.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Token não informado' });
   }
 
-  const token = authHeader.split(' ')[1]; // Bearer <token>
+  const token = authHeader.split(' ')[1];
 
   try {
-    const payload = verifyToken(token);
-    req.userId = payload.userId;
+    const { userId } = verifyToken(token);
+    req.userId = userId; // Agora o TS reconhece isso
     next();
   } catch (error) {
-    return res.status(401).json({ error: 'Token inválido ou expirado' });
+    return res.status(401).json({ error: 'Token inválido' });
   }
-}
+};

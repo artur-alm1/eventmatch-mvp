@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes';
+import userRoutes from './routes/user.routes';
 
 dotenv.config();
 
@@ -13,6 +14,7 @@ app.use(express.json());
 
 // Rotas
 app.use('/auth', authRoutes);
+app.use('/users', userRoutes);
 
 // Inicialização
 const PORT = process.env.PORT || 3000;

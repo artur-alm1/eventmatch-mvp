@@ -4,7 +4,7 @@ import { AuthService } from '../services/auth.service';
 const authService = new AuthService();
 
 export class AuthController {
-  async register(req: Request, res: Response) {
+  register = async(req: Request, res: Response) =>{
     try {
       const data = req.body;
 
@@ -16,7 +16,7 @@ export class AuthController {
     }
   }
 
-  async login(req: Request, res: Response) {
+  login = async (req: Request, res: Response) =>{
     try {
       const data = req.body;
 
