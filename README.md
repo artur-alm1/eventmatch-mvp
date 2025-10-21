@@ -57,7 +57,6 @@ Permite ambiente isolado e replicável com comandos simples.
 
 ## 📁 Estrutura do Projeto
 
-```bash
 eventmatch/
 ├── frontend/     # React + Tailwind + Vite
 └── backend/      # Node.js + Express + Prisma + Docker
