@@ -20,9 +20,9 @@ A aplicação será implantada em **plataformas modernas e escaláveis**, de aco
 - Deploy contínuo conectado ao GitHub
 - URL pública do frontend será gerada automaticamente pela Vercel
 
-### 🛠 Backend → Back4App
+### 🛠 Backend → RailWay
 - API REST construída com Node.js + Express + Prisma
-- Banco de Dados PostgreSQL gerenciado pelo Back4App
+- Banco de Dados PostgreSQL gerenciado pelo RailWay
 - Armazenamento de arquivos (currículos, avatares) via Parse File API
 - Backend pode ser containerizado com Docker para ambientes locais ou testes
 
