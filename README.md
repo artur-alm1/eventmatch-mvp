@@ -11,22 +11,13 @@ EventMatch é uma plataforma web para conectar **produtores culturais** a **pres
 
 ---
 
-## 🌍 Infraestrutura e Deploy
+## 🌍 Arquitetura & Deploy
 
-A aplicação será implantada em **plataformas modernas e escaláveis**, de acordo com a arquitetura definida na [Documentação Técnica 2.0 e 3.0].
-
-### 🔼 Frontend → Vercel
-- SPA desenvolvida em React com Vite + Tailwind
-- Deploy contínuo conectado ao GitHub
-- URL pública do frontend será gerada automaticamente pela Vercel
-
-### 🛠 Backend → RailWay
-- API REST construída com Node.js + Express + Prisma
-- Banco de Dados PostgreSQL gerenciado pelo RailWay
-- Armazenamento de arquivos (currículos, avatares) via Parse File API
-- Backend pode ser containerizado com Docker para ambientes locais ou testes
-
----
+| Camada     | Plataforma  | Tecnologias                  |
+|------------|-------------|------------------------------|
+| Frontend   | [Vercel](https://vercel.com/)    | Vite + React + Tailwind        |
+| Backend    | [Railway](https://railway.app/)  | Node.js + Express + PostgreSQL |
+| Banco de Dados | Railway (PostgreSQL) | Prisma ORM, hospedado em container |
 
 ## 🧱 Estrutura do Projeto (Monorepo)
 
@@ -88,3 +79,29 @@ npm install axios react-router-dom react-hook-form zod react-hot-toast
 npm install express prisma @prisma/client cors dotenv jsonwebtoken bcryptjs multer socket.io
 npm install -D typescript ts-node-dev @types/node @types/express @types/cors @types/jsonwebtoken @types/bcryptjs @types/socket.io
 npx prisma init
+
+
+## 🛠️ Status Atual – **Versão Backend 4.0**
+
+### ✅ Funcionalidades já implementadas:
+
+- [x] Estrutura monorepo: `frontend/` e `backend/`
+- [x] Instalações globais e locais separadas
+- [x] Conexão com banco PostgreSQL via Railway
+- [x] Prisma com geração e migração de schema funcionando
+- [x] Cadastro de usuário (`/auth/register`)
+- [x] Login com geração de JWT (`/auth/login`)
+- [x] Middleware de autenticação (`auth.middleware.ts`)
+- [x] Rota protegida `GET /users/me` funcionando no Postman com JWT
+
+### 🔒 Exemplo de resposta da rota de login:
+
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": "uuid-gerado",
+    "name": "Artur Luna",
+    "email": "artur@example.com"
+  }
+}
