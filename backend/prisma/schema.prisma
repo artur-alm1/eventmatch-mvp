@@ -1,0 +1,93 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String     @id @default(uuid())
+  name          String
+  email         String     @unique
+  password      String
+  role          Role       @default(PRESTADOR)
+  avatarUrl     String?    // link para imagem de perfil
+  resumeUrl     String?    // link para currículo PDF
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  // Relacionamentos
+  events        Event[]        @relation("ProducerEvents")
+  candidatures  Protocol[]     @relation("Candidatures")
+  portfolio     Portfolio?     
+  messagesSent  ChatMessage[]  @relation("Sender")
+  messagesRecv  ChatMessage[]  @relation("Receiver")
+}
+
+enum Role {
+  PRODUTOR
+  PRESTADOR
+}
+
+model Event {
+  id            String     @id @default(uuid())
+  title         String
+  description   String
+  location      String
+  date          DateTime
+  createdAt     DateTime   @default(now())
+
+  // Relação com produtor
+  producerId    String
+  producer      User       @relation("ProducerEvents", fields: [producerId], references: [id])
+
+  // Candidatos técnicos
+  protocols     Protocol[]
+}
+
+model Protocol {
+  id            String     @id @default(uuid())
+  status        ProtocolStatus @default(PENDENTE)
+  createdAt     DateTime   @default(now())
+
+  // Relações
+  eventId       String
+  event         Event      @relation(fields: [eventId], references: [id])
+
+  userId        String
+  user          User       @relation("Candidatures", fields: [userId], references: [id])
+}
+
+enum ProtocolStatus {
+  PENDENTE
+  ACEITO
+  RECUSADO
+  FINALIZADO
+}
+
+model Portfolio {
+  id          String   @id @default(uuid())
+  bio         String
+  specialties String[]
+  photos      String[] // links de imagens hospedadas
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model ChatMessage {
+  id          String     @id @default(uuid())
+  content     String
+  timestamp   DateTime   @default(now())
+
+  // Sender
+  senderId    String
+  sender      User       @relation("Sender", fields: [senderId], references: [id])
+
+  // Receiver
+  receiverId  String
+  receiver    User       @relation("Receiver", fields: [receiverId], references: [id])
+}
