@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes';
 import userRoutes from './routes/user.routes';
 import eventRoutes from './routes/event.routes';
+import protocolRoutes from './routes/protocol.routes';
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ app.use(express.json());
 app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
 app.use('/events', eventRoutes);
+app.use('/protocols', protocolRoutes);
 
 // Inicialização
 const PORT = process.env.PORT || 3000;

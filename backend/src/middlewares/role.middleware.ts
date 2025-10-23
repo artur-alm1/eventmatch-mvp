@@ -10,4 +10,14 @@ export const requireProducer = async (req: Request, res: Response, next: NextFun
   }
 
   next();
+
 };
+
+  export const requireProvider = async (req: Request, res: Response, next: NextFunction) => {
+  const user = await prisma.user.findUnique({ where: { id: req.userId } });
+  if (user?.role !== 'PRESTADOR') {
+    return res.status(403).json({ error: 'Apenas prestadores podem acessar essa rota' });
+  }
+  next();
+};
+

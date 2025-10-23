@@ -6,7 +6,7 @@ export const createEvent = async (producerId: string, data: {
   location: string;
   date: Date;
 }) => {
-  return await prisma.event.create({
+  return prisma.event.create({
     data: {
       ...data,
       producerId,
@@ -14,21 +14,28 @@ export const createEvent = async (producerId: string, data: {
   });
 };
 
+/**
+ * GET /events — públicos (sem auth)
+ */
 export const listAllEvents = async () => {
-  return await prisma.event.findMany({
+  return prisma.event.findMany({
+    orderBy: { date: 'asc' }, // próximos primeiro
     include: {
-      producer: {
-        select: { id: true, name: true },
-      },
+      producer: { select: { id: true, name: true } }, // contexto mínimo do dono
+      _count: { select: { protocols: true } },        // evita N+1 para contagem
     },
   });
 };
 
+/**
+ * GET /events/me — do produtor autenticado
+ */
 export const listMyEvents = async (producerId: string) => {
-  return await prisma.event.findMany({
+  return prisma.event.findMany({
     where: { producerId },
     include: {
-      protocols: true,
+      protocols: true, // produtor enxerga candidaturas recebidas
     },
+    orderBy: { createdAt: 'desc' },
   });
 };

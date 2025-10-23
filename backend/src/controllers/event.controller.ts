@@ -21,3 +21,5 @@ export const getMine = async (req: AuthenticatedRequest, res: Response) => {
   const events = await listMyEvents(req.userId);
   return res.json(events);
 };
+
+

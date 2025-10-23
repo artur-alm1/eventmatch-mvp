@@ -60,6 +60,8 @@ model Protocol {
 
   userId        String
   user          User       @relation("Candidatures", fields: [userId], references: [id])
+
+  @@unique([eventId, userId], name: "unique_protocol_per_event_user")
 }
 
 enum ProtocolStatus {

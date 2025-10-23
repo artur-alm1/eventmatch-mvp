@@ -7,6 +7,6 @@ const router = Router();
 
 router.post('/', authMiddleware, requireProducer, create);       // Criar evento (precisa estar logado como PRODUTOR)
 router.get('/', getAll);                        // Listar todos os eventos públicos
-router.get('/me', authMiddleware, getMine);     // Listar eventos do usuário autenticado
+router.get('/me', authMiddleware,requireProducer, getMine);     // Listar eventos do usuário autenticado
 
 export default router;
