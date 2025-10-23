@@ -1,25 +1,25 @@
-# 🎤 EventMatch – Technical Platform for Cultural Events
+# 🎤 EventMatch – Plataforma Técnica para Eventos Culturais
 
-EventMatch is a web platform connecting **cultural event producers** with **technical service providers** (sound, lighting, setup, etc.), featuring:
+EventMatch é uma plataforma web para conectar **produtores culturais** a **prestadores de serviços técnicos** (som, luz, montagem etc.), oferecendo:
 
-- Event registration
-- Technical position applications
-- Work protocol generation
-- Public portfolios
-- Ratings & reviews
-- Secure 1:1 chat
+- Cadastro de eventos
+- Candidaturas a vagas técnicas
+- Geração de protocolos de trabalho
+- Portfólios públicos
+- Avaliações
+- Chat seguro 1:1
 
 ---
 
-## 🌍 Architecture & Deployment
+## 🌍 Arquitetura & Deploy
 
-| Layer     | Platform  | Technologies                  |
-|-----------|-----------|-------------------------------|
-| Frontend  | [Vercel](https://vercel.com/)    | Vite + React + Tailwind        |
-| Backend   | [Railway](https://railway.app/)  | Node.js + Express + PostgreSQL |
-| Database  | Railway (PostgreSQL) | Prisma ORM, container-hosted |
+| Camada        | Plataforma  | Tecnologias                  |
+|---------------|-------------|------------------------------|
+| Frontend      | [Vercel](https://vercel.com/)    | Vite + React + Tailwind        |
+| Backend       | [Railway](https://railway.app/)  | Node.js + Express + PostgreSQL |
+| Banco de Dados| Railway (PostgreSQL) | Prisma ORM, hospedado em container |
 
-## 🧱 Project Structure (Monorepo)
+## 🧱 Estrutura do Projeto (Monorepo)
 
 ```bash
 eventmatch/
@@ -29,36 +29,36 @@ eventmatch/
 
 ---
 
-## ⚙️ Environments and Installation
+## ⚙️ Ambientes e Instalação
 
-### 🔧 Global Installations (System-wide)
+### 🔧 Instalações Globais (no sistema)
 
-These tools should be installed **once** on **Ubuntu 22.04 LTS**:
+Essas ferramentas devem ser instaladas **uma única vez** no sistema **Ubuntu 22.04 LTS**:
 
-| Tool                                                                       | Verification Command          | Project Usage                                                                  |
+| Ferramenta                                                                 | Comando de Verificação        | Uso no Projeto                                                                 |
 |----------------------------------------------------------------------------|-------------------------------|--------------------------------------------------------------------------------|
-| [Git](https://git-scm.com/)                                               | `git --version`              | Code versioning with GitHub integration                                        |
-| [NVM – Node Version Manager](https://github.com/nvm-sh/nvm)              | `nvm --version`              | Per-user Node.js version manager                                               |
-| [Node.js (LTS)](https://nodejs.org/en/)                                   | `node -v`                    | Backend execution (Express) and frontend (Vite + React)                        |
-| npm (included with Node.js)                                               | `npm -v`                     | JavaScript dependency management                                               |
-| [Docker](https://docs.docker.com/engine/install/ubuntu/)                 | `docker --version`           | Containers for PostgreSQL and backend services                                 |
-| [Docker Compose](https://docs.docker.com/compose/install/)               | `docker-compose --version`   | Local multi-container orchestration                                            |
-| [Prisma CLI](https://www.prisma.io/docs/getting-started)                 | `prisma -v`                  | ORM for PostgreSQL modeling and database access                                |
-| [Visual Studio Code](https://code.visualstudio.com/)                     | `code --version`             | Primary code editor with extensions (Tailwind, Prisma, etc.)                   |
+| [Git](https://git-scm.com/)                                               | `git --version`              | Versionamento de código com integração ao GitHub                               |
+| [NVM – Node Version Manager](https://github.com/nvm-sh/nvm)              | `nvm --version`              | Gerenciador de versões do Node.js por usuário                                  |
+| [Node.js (LTS)](https://nodejs.org/en/)                                   | `node -v`                    | Execução do backend (Express) e frontend (Vite + React)                        |
+| npm (incluso com Node.js)                                                 | `npm -v`                     | Gerenciamento de dependências JavaScript no projeto                            |
+| [Docker](https://docs.docker.com/engine/install/ubuntu/)                 | `docker --version`           | Containers para PostgreSQL e serviços backend                                  |
+| [Docker Compose](https://docs.docker.com/compose/install/)               | `docker-compose --version`   | Orquestração local de múltiplos containers                                     |
+| [Prisma CLI](https://www.prisma.io/docs/getting-started)                 | `prisma -v`                  | ORM utilizado para modelagem e acesso ao banco PostgreSQL                      |
+| [Visual Studio Code](https://code.visualstudio.com/)                     | `code --version`             | Editor de código principal, com suporte a extensões como Tailwind, Prisma, etc.|
 
 ---
 
-## 📦 Local Dependencies by Environment
+## 📦 Dependências Locais por Ambiente
 
-Dependencies below are installed locally within their respective folders (`frontend/` and `backend/`) using `npm install`.
+As dependências abaixo são instaladas localmente dentro de suas respectivas pastas (`frontend/` e `backend/`), com `npm install`.
 
 ---
 
 ### 🖼️ Frontend – React + Vite + Tailwind
 
-📁 Path: `eventmatch/frontend/`
+📁 Caminho: `eventmatch/frontend/`
 
-#### 🔧 Installation
+#### 🔧 Instalação
 
 ```bash
 npm install
@@ -71,9 +71,9 @@ npm install axios react-router-dom react-hook-form zod react-hot-toast
 
 ### 🛠️ Backend – Node.js + Express + Prisma
 
-📁 Path: `eventmatch/backend/`
+📁 Caminho: `eventmatch/backend/`
 
-#### 🔧 Installation
+#### 🔧 Instalação
 
 ```bash
 npm install express prisma @prisma/client cors dotenv jsonwebtoken bcryptjs multer socket.io
@@ -83,26 +83,26 @@ npx prisma init
 
 ---
 
-## 🛠️ Current Status – **Backend Version 4.0**
+## 🛠️ Status Atual – **Versão Backend 4.0**
 
-### ✅ Implemented Features:
+### ✅ Funcionalidades Implementadas:
 
-- [x] Monorepo structure: `frontend/` and `backend/`
-- [x] Global and local installations separated
-- [x] PostgreSQL database connection via Railway
-- [x] Prisma with schema generation and migrations working
-- [x] User registration (`/auth/register`)
-- [x] Login with JWT generation (`/auth/login`)
-- [x] Authentication middleware (`auth.middleware.ts`)
-- [x] Protected route `GET /users/me` working in Postman with JWT
+- [x] Estrutura monorepo: `frontend/` e `backend/`
+- [x] Instalações globais e locais separadas
+- [x] Conexão com banco PostgreSQL via Railway
+- [x] Prisma com geração e migração de schema funcionando
+- [x] Cadastro de usuário (`/auth/register`)
+- [x] Login com geração de JWT (`/auth/login`)
+- [x] Middleware de autenticação (`auth.middleware.ts`)
+- [x] Rota protegida `GET /users/me` funcionando no Postman com JWT
 
-### 🔒 Login Response Example:
+### 🔒 Exemplo de Resposta do Login:
 
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "user": {
-    "id": "uuid-generated",
+    "id": "uuid-gerado",
     "name": "Artur Luna",
     "email": "artur@example.com"
   }
@@ -111,22 +111,19 @@ npx prisma init
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Como Começar
 
-1. Clone the repository
-2. Install global dependencies (see table above)
-3. Install frontend dependencies: `cd frontend && npm install`
-4. Install backend dependencies: `cd backend && npm install`
-5. Set up environment variables (`.env` files)
-6. Run Prisma migrations: `npx prisma migrate dev`
-7. Start development servers
+1. Clone o repositório
+2. Instale as dependências globais (veja tabela acima)
+3. Instale as dependências do frontend: `cd frontend && npm install`
+4. Instale as dependências do backend: `cd backend && npm install`
+5. Configure as variáveis de ambiente (arquivos `.env`)
+6. Execute as migrações do Prisma: `npx prisma migrate dev`
+7. Inicie os servidores de desenvolvimento
 
 ---
 
-## 📝 License
 
+## 👥 Contribuidores
 
-
-## 👥 Contributors
-
-Artur Luna
+Artur Luna Marinho
