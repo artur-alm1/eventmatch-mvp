@@ -1,24 +1,36 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import authRoutes from './routes/auth.routes';
-import userRoutes from './routes/user.routes';
-import eventRoutes from './routes/event.routes';
-import protocolRoutes from './routes/protocol.routes';
+// src/index.ts
+import "./config/env";
+import express from "express";
+import cors from "cors";
+import helmet from "helmet";
 
-dotenv.config();
+import healthRoutes from "./routes/health.routes";
+import { errorMiddleware } from "./middlewares/error.middleware";
+
+// Ajuste os caminhos conforme seu projeto:
+import authRoutes from "./routes/auth.routes";
+import userRoutes from "./routes/user.routes";
+import eventRoutes from "./routes/event.routes";
+import protocolRoutes from "./routes/protocol.routes";
 
 const app = express();
 
-// Middlewares
-app.use(cors());
+app.use(helmet());
+app.use(cors({ origin: true }));
 app.use(express.json());
 
 // Rotas
-app.use('/auth', authRoutes);
-app.use('/users', userRoutes);
-app.use('/events', eventRoutes);
-app.use('/protocols', protocolRoutes);
+app.use(healthRoutes);
+app.use("/auth", authRoutes);
+app.use("/users", userRoutes);
+app.use("/events", eventRoutes);
+app.use("/protocols", protocolRoutes);
+
+// 404 unificado
+app.use((_req, res) => res.status(404).json({ error: "NotFound" }));
+
+// Error handler global
+app.use(errorMiddleware);
 
 // Inicialização
 const PORT = process.env.PORT || 3000;

@@ -1,20 +1,15 @@
 // src/utils/jwt.ts
+import jwt from "jsonwebtoken";
+import { env } from "../config/env";
 
-import jwt from 'jsonwebtoken';
-import { JWT_SECRET } from '../config/env';
-
-interface Payload {
-  userId: string;
+export function signJwt(payload: object, options?: jwt.SignOptions) {
+  return jwt.sign(payload, env.jwtSecret, { expiresIn: "7d", ...options });
 }
 
-// Gera um token assinado com ID do usuário
-export function signToken(payload: Payload): string {
-  return jwt.sign(payload, JWT_SECRET, {
-    expiresIn: '7d', // Token válido por 7 dias
-  });
+export function verifyJwt<T = any>(token: string) {
+  return jwt.verify(token, env.jwtSecret) as T;
 }
 
-// Valida e decodifica um token
-export function verifyToken(token: string): Payload {
-  return jwt.verify(token, JWT_SECRET) as Payload;
-}
+// ---- Compat: mantém nomes antigos para quem ainda importa signToken/verifyToken
+export const signToken = signJwt;
+export const verifyToken = verifyJwt;
