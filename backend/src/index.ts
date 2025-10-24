@@ -6,6 +6,7 @@ import helmet from "helmet";
 
 import healthRoutes from "./routes/health.routes";
 import { errorMiddleware } from "./middlewares/error.middleware";
+import portfolioRoutes from "./routes/portfolio.routes";
 
 // Ajuste os caminhos conforme seu projeto:
 import authRoutes from "./routes/auth.routes";
@@ -25,6 +26,7 @@ app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
 app.use("/events", eventRoutes);
 app.use("/protocols", protocolRoutes);
+app.use("/portfolio", portfolioRoutes); 
 
 // 404 unificado
 app.use((_req, res) => res.status(404).json({ error: "NotFound" }));
