@@ -43,6 +43,22 @@ CREATE TABLE "Protocol" (
     CONSTRAINT "Protocol_pkey" PRIMARY KEY ("id")
 );
 
+CREATE TABLE "ResumeFile" (
+  "id" TEXT PRIMARY KEY DEFAULT gen_random_uuid(),
+  "userId" TEXT NOT NULL,
+  "filename" TEXT NOT NULL,
+  "mimeType" TEXT NOT NULL,
+  "size" INTEGER NOT NULL,
+  "data" BYTEA NOT NULL,
+  "textExtraction" TEXT,
+  "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+-- CreateIndex
+CREATE INDEX "resume_user_created_idx" ON "ResumeFile"("userId","createdAt");
+ALTER TABLE "ResumeFile"
+  ADD CONSTRAINT "resume_user_fk" FOREIGN KEY ("userId")
+  REFERENCES "User"("id") ON DELETE CASCADE;
+
 -- CreateTable
 CREATE TABLE "Portfolio" (
     "id" TEXT NOT NULL,

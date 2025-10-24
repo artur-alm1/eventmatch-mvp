@@ -10,22 +10,23 @@ datasource db {
 }
 
 model User {
-  id            String     @id @default(uuid())
-  name          String
-  email         String     @unique
-  password      String
-  role          Role       @default(PRESTADOR)
-  avatarUrl     String?    // link para imagem de perfil
-  resumeUrl     String?    // link para currículo PDF
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(PRESTADOR)
+  avatarUrl String? // link para imagem de perfil
+  resumeUrl String? // link para currículo PDF
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relacionamentos
-  events        Event[]        @relation("ProducerEvents")
-  candidatures  Protocol[]     @relation("Candidatures")
-  portfolio     Portfolio?     
-  messagesSent  ChatMessage[]  @relation("Sender")
-  messagesRecv  ChatMessage[]  @relation("Receiver")
+  events       Event[]       @relation("ProducerEvents")
+  candidatures Protocol[]    @relation("Candidatures")
+  portfolio    Portfolio?
+  resumes      ResumeFile[] // <— lado oposto da relação
+  messagesSent ChatMessage[] @relation("Sender")
+  messagesRecv ChatMessage[] @relation("Receiver")
 }
 
 enum Role {
@@ -34,32 +35,32 @@ enum Role {
 }
 
 model Event {
-  id            String     @id @default(uuid())
-  title         String
-  description   String
-  location      String
-  date          DateTime
-  createdAt     DateTime   @default(now())
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  location    String
+  date        DateTime
+  createdAt   DateTime @default(now())
 
   // Relação com produtor
-  producerId    String
-  producer      User       @relation("ProducerEvents", fields: [producerId], references: [id])
+  producerId String
+  producer   User   @relation("ProducerEvents", fields: [producerId], references: [id])
 
   // Candidatos técnicos
-  protocols     Protocol[]
+  protocols Protocol[]
 }
 
 model Protocol {
-  id            String     @id @default(uuid())
-  status        ProtocolStatus @default(PENDENTE)
-  createdAt     DateTime   @default(now())
+  id        String         @id @default(uuid())
+  status    ProtocolStatus @default(PENDENTE)
+  createdAt DateTime       @default(now())
 
   // Relações
-  eventId       String
-  event         Event      @relation(fields: [eventId], references: [id])
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id])
 
-  userId        String
-  user          User       @relation("Candidatures", fields: [userId], references: [id])
+  userId String
+  user   User   @relation("Candidatures", fields: [userId], references: [id])
 
   @@unique([eventId, userId], name: "unique_protocol_per_event_user")
 }
@@ -69,6 +70,20 @@ enum ProtocolStatus {
   ACEITO
   RECUSADO
   FINALIZADO
+}
+
+model ResumeFile {
+  id             String   @id @default(cuid())
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         String
+  filename       String
+  mimeType       String
+  size           Int
+  data           Bytes
+  textExtraction String?
+  createdAt      DateTime @default(now())
+
+  @@index([userId, createdAt])
 }
 
 model Portfolio {
@@ -81,15 +96,15 @@ model Portfolio {
 }
 
 model ChatMessage {
-  id          String     @id @default(uuid())
-  content     String
-  timestamp   DateTime   @default(now())
+  id        String   @id @default(uuid())
+  content   String
+  timestamp DateTime @default(now())
 
   // Sender
-  senderId    String
-  sender      User       @relation("Sender", fields: [senderId], references: [id])
+  senderId String
+  sender   User   @relation("Sender", fields: [senderId], references: [id])
 
   // Receiver
-  receiverId  String
-  receiver    User       @relation("Receiver", fields: [receiverId], references: [id])
+  receiverId String
+  receiver   User   @relation("Receiver", fields: [receiverId], references: [id])
 }
