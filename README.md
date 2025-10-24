@@ -5,7 +5,8 @@ EventMatch é uma plataforma web para conectar **produtores culturais** a **pres
 - Cadastro de eventos
 - Candidaturas a vagas técnicas
 - Geração de protocolos de trabalho
-- Portfólios públicos
+- Portfólios públicos com upload de currículo
+- Busca full-text em currículos
 - Avaliações
 - Chat seguro 1:1
 
@@ -83,21 +84,26 @@ npx prisma init
 
 ---
 
-## 🛠️ Status Atual – **Versão Backend 4.0**
+## 🛠️ Status Atual do Desenvolvimento
 
-### ✅ Funcionalidades Implementadas:
+### ✅ Módulos Implementados (1-4)
 
-- [x] Estrutura monorepo: `frontend/` e `backend/`
-- [x] Instalações globais e locais separadas
-- [x] Conexão com banco PostgreSQL via Railway
-- [x] Prisma com geração e migração de schema funcionando
-- [x] Cadastro de usuário (`/auth/register`)
-- [x] Login com geração de JWT (`/auth/login`)
-- [x] Middleware de autenticação (`auth.middleware.ts`)
-- [x] Rota protegida `GET /users/me` funcionando no Postman com JWT
+#### **Módulo 1 — Fundamentos & Configuração**
+- [x] Rota `/health` (liveness/readiness): status, db, uptime, timestamp
+- [x] Validação do `.env` no boot (DATABASE_URL/JWT_SECRET)
+- [x] Error handler global (JSON padronizado; mapeia 4xx/5xx)
+- [x] Rota 404 unificada
+- [x] Middlewares-base: helmet, cors, express.json()
+- [x] Inicialização configurável por PORT
 
-### 🔒 Exemplo de Resposta do Login:
+#### **Módulo 2 — Autenticação & Usuário**
+- [x] `/auth/register` (hash seguro de senha)
+- [x] `/auth/login` (validação + geração de JWT)
+- [x] `/users/me` (dados do usuário autenticado)
+- [x] RBAC: middlewares `requireProducer` e `requireProvider`
+- [x] JWT centralizado com `env.jwtSecret`
 
+**Exemplo de resposta do login:**
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -108,6 +114,150 @@ npx prisma init
   }
 }
 ```
+
+#### **Módulo 3 — Eventos**
+- [x] `POST /events` (apenas produtor)
+- [x] `GET /events` (listagem pública com ordenação/paginação)
+- [x] `GET /events/me` (eventos do produtor autenticado)
+
+#### **Módulo 4 — Protocolos (Candidaturas/Status)**
+- [x] `POST /protocols/:eventId/apply` (prestador):
+  - Bloqueio de auto-candidatura
+  - Proteção contra duplicidade (índice único + retorno 409)
+- [x] `GET /protocols/me` (prestador): lista as próprias candidaturas
+- [x] `PUT /protocols/:id/status` (produtor dono):
+  - Somente PENDENTE → ACEITO|RECUSADO
+  - 403 se não for dono; 404 se inexistente; 422 para status inválidos
+
+---
+
+### 🚧 Roadmap de Desenvolvimento (Módulos 5-14)
+
+#### **Módulo 5 — Portfólio & Upload de Currículo** 🔄 *Próximo*
+**Objetivo:** Armazenar currículos (PDF/DOCX) no PostgreSQL e extrair texto
+
+**Tarefas:**
+- [ ] Middleware de upload (memória; 5 MB; allowlist pdf/docx)
+- [ ] Verificação de MIME (file-type)
+- [ ] Modelo `ResumeFile` (metadados + BYTEA data + textExtraction)
+- [ ] Extração de texto (pdf-parse / mammoth) + heurísticas
+- [ ] Endpoints: `POST /portfolio/upload`, `GET /portfolio/me/files`, `GET /portfolio/files/:id`
+
+**Critério de Aceite:** Upload salva binário; extração retorna resumo; download funciona
+
+---
+
+#### **Módulo 6 — Busca Full-Text (PostgreSQL)** 🔄 *Próximo*
+**Objetivo:** Pesquisar termos nos currículos extraídos
+
+**Tarefas:**
+- [ ] Coluna gerada `resume_search TSVECTOR` (pt_BR) + índice GIN
+- [ ] Endpoint `GET /portfolio/search?q=&limit=&offset=`
+- [ ] Implementação com `websearch_to_tsquery`, `ts_rank`, `ts_headline`
+- [ ] Paginação e ordenação por relevância
+
+**Critério de Aceite:** Resultados ordenados com snippet; performance aceitável
+
+---
+
+#### **Módulo 7 — Chat 1:1 Seguro**
+**Objetivo:** Comunicação entre produtor e prestador com vínculo válido
+
+**Tarefas:**
+- [ ] Modelos/relacionamentos para mensagens
+- [ ] Rotas REST: listar conversas/mensagens; enviar mensagem
+- [ ] Socket.IO autenticado (JWT), rooms por par com protocolo ACEITO
+- [ ] Regras de autorização em tempo real
+
+**Critério de Aceite:** Mensagens fluem produtor↔prestador com vínculo válido
+
+---
+
+#### **Módulo 8 — Segurança Aplicacional**
+**Objetivo:** Fortalecer a superfície de ataque
+
+**Tarefas:**
+- [ ] CORS restrito a domínios do frontend
+- [ ] Rate-limit (auth, upload, busca)
+- [ ] Validação de payloads (Zod) em rotas sensíveis
+- [ ] Sanitização de entradas e texto extraído
+
+**Critério de Aceite:** Respostas padronizadas (422/400/401/403/404/409), headers seguros
+
+---
+
+#### **Módulo 9 — Observabilidade & Logs**
+**Objetivo:** Visibilidade e diagnóstico
+
+**Tarefas:**
+- [ ] Logger estruturado (requestId, nível, tempo)
+- [ ] Métricas: tempo de extração, tamanho de arquivo, p95 de busca, taxa de erro
+- [ ] Logs específicos para upload, extração, busca, chat
+
+**Critério de Aceite:** Trilhas de auditoria e métricas disponíveis
+
+---
+
+#### **Módulo 10 — Banco & Operação (Railway)**
+**Objetivo:** Estabilidade operacional
+
+**Tarefas:**
+- [ ] Migrações Prisma + SQL do FTS reprodutíveis
+- [ ] ANALYZE pós-índice GIN; seeds mínimos
+- [ ] Política de backup/restore; monitorar crescimento
+
+**Critério de Aceite:** Migra em ambiente limpo; plano de backup documentado
+
+---
+
+#### **Módulo 11 — Qualidade (QA & Testes)**
+**Objetivo:** Garantir regressão mínima
+
+**Tarefas:**
+- [ ] Unit tests (services de extração/sumário)
+- [ ] Integração (auth → eventos → apply → status → upload → search → download)
+- [ ] Fixtures PDF/DOCX pequenos
+- [ ] Coleção Postman (flows ponta-a-ponta)
+
+**Critério de Aceite:** Suíte passa local/CI; coleção executável
+
+---
+
+#### **Módulo 12 — CI/CD (Railway)**
+**Objetivo:** Entrega contínua com segurança
+
+**Tarefas:**
+- [ ] GitHub Actions: lint, build, testes
+- [ ] Passo de migração no deploy
+- [ ] Verificação de .env obrigatórias
+- [ ] Estratégia de rollback
+
+**Critério de Aceite:** PR roda CI; merge faz deploy; rollback documentado
+
+---
+
+#### **Módulo 13 — Documentação & Runbooks**
+**Objetivo:** Onboarding e operação sem atrito
+
+**Tarefas:**
+- [ ] README completo (setup, scripts, env, rotas)
+- [ ] API docs (Swagger/Postman export)
+- [ ] Runbooks: incidentes comuns (413/415, falhas de extração, DB cheio)
+
+**Critério de Aceite:** Dev sobe o projeto em <10 min; APIs claras
+
+---
+
+#### **Módulo 14 — Polimento 4.0**
+**Objetivo:** Fechar pendências e NFRs
+
+**Tarefas:**
+- [ ] Revisão de performance
+- [ ] Linter/formatter
+- [ ] Limites de tamanho/concorrência
+- [ ] Próximos passos (ex.: migração para S3 se volume crescer)
+
+**Critério de Aceite:** "Definition of Done" completo e release tag
 
 ---
 
@@ -120,6 +270,15 @@ npx prisma init
 5. Configure as variáveis de ambiente (arquivos `.env`)
 6. Execute as migrações do Prisma: `npx prisma migrate dev`
 7. Inicie os servidores de desenvolvimento
+
+---
+
+## 📊 Progresso Geral
+
+```
+Módulos Completos: 4/14 (29%)
+Próximos: Módulo 5 (Portfólio) e Módulo 6 (Busca FTS)
+```
 
 ---
 
