@@ -43,21 +43,19 @@ CREATE TABLE "Protocol" (
     CONSTRAINT "Protocol_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
 CREATE TABLE "ResumeFile" (
-  "id" TEXT PRIMARY KEY DEFAULT gen_random_uuid(),
-  "userId" TEXT NOT NULL,
-  "filename" TEXT NOT NULL,
-  "mimeType" TEXT NOT NULL,
-  "size" INTEGER NOT NULL,
-  "data" BYTEA NOT NULL,
-  "textExtraction" TEXT,
-  "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "filename" TEXT NOT NULL,
+    "mimeType" TEXT NOT NULL,
+    "size" INTEGER NOT NULL,
+    "data" BYTEA NOT NULL,
+    "textExtraction" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "ResumeFile_pkey" PRIMARY KEY ("id")
 );
--- CreateIndex
-CREATE INDEX "resume_user_created_idx" ON "ResumeFile"("userId","createdAt");
-ALTER TABLE "ResumeFile"
-  ADD CONSTRAINT "resume_user_fk" FOREIGN KEY ("userId")
-  REFERENCES "User"("id") ON DELETE CASCADE;
 
 -- CreateTable
 CREATE TABLE "Portfolio" (
@@ -73,10 +71,11 @@ CREATE TABLE "Portfolio" (
 -- CreateTable
 CREATE TABLE "ChatMessage" (
     "id" TEXT NOT NULL,
-    "content" TEXT NOT NULL,
-    "timestamp" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "protocolId" TEXT NOT NULL,
     "senderId" TEXT NOT NULL,
-    "receiverId" TEXT NOT NULL,
+    "body" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "readAt" TIMESTAMP(3),
 
     CONSTRAINT "ChatMessage_pkey" PRIMARY KEY ("id")
 );
@@ -85,7 +84,16 @@ CREATE TABLE "ChatMessage" (
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
+CREATE INDEX "ResumeFile_userId_createdAt_idx" ON "ResumeFile"("userId", "createdAt");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Portfolio_userId_key" ON "Portfolio"("userId");
+
+-- CreateIndex
+CREATE INDEX "chat_protocol_created_idx" ON "ChatMessage"("protocolId", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "chat_sender_created_idx" ON "ChatMessage"("senderId", "createdAt");
 
 -- AddForeignKey
 ALTER TABLE "Event" ADD CONSTRAINT "Event_producerId_fkey" FOREIGN KEY ("producerId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -97,10 +105,13 @@ ALTER TABLE "Protocol" ADD CONSTRAINT "Protocol_eventId_fkey" FOREIGN KEY ("even
 ALTER TABLE "Protocol" ADD CONSTRAINT "Protocol_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "ResumeFile" ADD CONSTRAINT "ResumeFile_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Portfolio" ADD CONSTRAINT "Portfolio_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ChatMessage" ADD CONSTRAINT "ChatMessage_senderId_fkey" FOREIGN KEY ("senderId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "ChatMessage" ADD CONSTRAINT "ChatMessage_protocolId_fkey" FOREIGN KEY ("protocolId") REFERENCES "Protocol"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ChatMessage" ADD CONSTRAINT "ChatMessage_receiverId_fkey" FOREIGN KEY ("receiverId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "ChatMessage" ADD CONSTRAINT "ChatMessage_senderId_fkey" FOREIGN KEY ("senderId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
