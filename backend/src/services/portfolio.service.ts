@@ -99,3 +99,40 @@ function summarize(text: string): ResumeSummary {
   const skills = SKILLS.filter(s => new RegExp(`\\b${s}\\b`, "i").test(text));
   return { email, phone, skills };
 }
+
+export type SearchResult = {
+  id: string;
+  filename: string;
+  mimeType: string;
+  size: number;
+  createdAt: Date;
+  rank: number;
+  snippet: string | null;
+};
+
+export async function searchMyResumes(
+  userId: string,
+  q: string,
+  limit = 10,
+  offset = 0
+): Promise<SearchResult[]> {
+  if (!userId) throw Object.assign(new Error("Unauthorized"), { status: 401 });
+  if (!q || !q.trim()) return [];
+  const rows = await prisma.$queryRaw<SearchResult[]>`
+    SELECT r.id,
+           r."filename",
+           r."mimeType",
+           r."size",
+           r."createdAt",
+           ts_rank(r."resume_search", qry) AS rank,
+           ts_headline('portuguese', coalesce(r."textExtraction", ''), qry,
+               'ShortWord=2,MaxFragments=2,MinWords=5,MaxWords=10,HighlightAll=FALSE,StartSel=<mark>,StopSel=</mark>') AS snippet
+    FROM "ResumeFile" r,
+         websearch_to_tsquery('portuguese', ${q}) AS qry
+    WHERE r."userId" = ${userId}
+      AND r."resume_search" @@ qry
+    ORDER BY rank DESC, r."createdAt" DESC
+    LIMIT ${limit} OFFSET ${offset};
+  `;
+  return rows;
+}
