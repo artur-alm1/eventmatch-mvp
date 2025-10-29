@@ -80,8 +80,27 @@ CREATE TABLE "ChatMessage" (
     CONSTRAINT "ChatMessage_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "Review" (
+    "id" TEXT NOT NULL,
+    "fromUserId" TEXT NOT NULL,
+    "toUserId" TEXT NOT NULL,
+    "eventId" TEXT NOT NULL,
+    "protocolId" TEXT,
+    "performance" INTEGER NOT NULL,
+    "recommend" INTEGER NOT NULL,
+    "comment" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Review_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Protocol_eventId_userId_key" ON "Protocol"("eventId", "userId");
 
 -- CreateIndex
 CREATE INDEX "ResumeFile_userId_createdAt_idx" ON "ResumeFile"("userId", "createdAt");
@@ -94,6 +113,15 @@ CREATE INDEX "chat_protocol_created_idx" ON "ChatMessage"("protocolId", "created
 
 -- CreateIndex
 CREATE INDEX "chat_sender_created_idx" ON "ChatMessage"("senderId", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "Review_toUserId_idx" ON "Review"("toUserId");
+
+-- CreateIndex
+CREATE INDEX "Review_eventId_idx" ON "Review"("eventId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Review_fromUserId_toUserId_eventId_key" ON "Review"("fromUserId", "toUserId", "eventId");
 
 -- AddForeignKey
 ALTER TABLE "Event" ADD CONSTRAINT "Event_producerId_fkey" FOREIGN KEY ("producerId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -115,3 +143,15 @@ ALTER TABLE "ChatMessage" ADD CONSTRAINT "ChatMessage_protocolId_fkey" FOREIGN K
 
 -- AddForeignKey
 ALTER TABLE "ChatMessage" ADD CONSTRAINT "ChatMessage_senderId_fkey" FOREIGN KEY ("senderId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Review" ADD CONSTRAINT "Review_fromUserId_fkey" FOREIGN KEY ("fromUserId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Review" ADD CONSTRAINT "Review_toUserId_fkey" FOREIGN KEY ("toUserId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Review" ADD CONSTRAINT "Review_eventId_fkey" FOREIGN KEY ("eventId") REFERENCES "Event"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Review" ADD CONSTRAINT "Review_protocolId_fkey" FOREIGN KEY ("protocolId") REFERENCES "Protocol"("id") ON DELETE SET NULL ON UPDATE CASCADE;
