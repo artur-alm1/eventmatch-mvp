@@ -7,8 +7,9 @@ EventMatch é uma plataforma web para conectar **produtores culturais** a **pres
 - Geração de protocolos de trabalho
 - Portfólios públicos com upload de currículo
 - Busca full-text em currículos
-- Avaliações
+- Sistema de avaliações (reviews) ⭐ **NOVO**
 - Chat seguro 1:1
+- Avaliações mútuas entre produtores e prestadores
 
 ---
 
@@ -86,9 +87,9 @@ npx prisma init
 
 ## 🛠️ Status Atual do Desenvolvimento
 
-### ✅ Módulos Implementados (1-4)
+### ✅ Módulos Implementados (1-7 + Reviews)
 
-#### **Módulo 1 — Fundamentos & Configuração**
+#### **Módulo 1 — Fundamentos & Configuração** ✅
 - [x] Rota `/health` (liveness/readiness): status, db, uptime, timestamp
 - [x] Validação do `.env` no boot (DATABASE_URL/JWT_SECRET)
 - [x] Error handler global (JSON padronizado; mapeia 4xx/5xx)
@@ -96,7 +97,7 @@ npx prisma init
 - [x] Middlewares-base: helmet, cors, express.json()
 - [x] Inicialização configurável por PORT
 
-#### **Módulo 2 — Autenticação & Usuário**
+#### **Módulo 2 — Autenticação & Usuário** ✅
 - [x] `/auth/register` (hash seguro de senha)
 - [x] `/auth/login` (validação + geração de JWT)
 - [x] `/users/me` (dados do usuário autenticado)
@@ -115,12 +116,12 @@ npx prisma init
 }
 ```
 
-#### **Módulo 3 — Eventos**
+#### **Módulo 3 — Eventos** ✅
 - [x] `POST /events` (apenas produtor)
 - [x] `GET /events` (listagem pública com ordenação/paginação)
 - [x] `GET /events/me` (eventos do produtor autenticado)
 
-#### **Módulo 4 — Protocolos (Candidaturas/Status)**
+#### **Módulo 4 — Protocolos (Candidaturas/Status)** ✅
 - [x] `POST /protocols/:eventId/apply` (prestador):
   - Bloqueio de auto-candidatura
   - Proteção contra duplicidade (índice único + retorno 409)
@@ -129,51 +130,61 @@ npx prisma init
   - Somente PENDENTE → ACEITO|RECUSADO
   - 403 se não for dono; 404 se inexistente; 422 para status inválidos
 
+#### **Módulo 5 — Portfólio & Upload de Currículo** ✅
+- [x] Middleware de upload (memória; 5 MB; allowlist pdf/docx)
+- [x] Verificação de MIME (file-type)
+- [x] Modelo `ResumeFile` (metadados + BYTEA data + textExtraction)
+- [x] Extração de texto (pdf-parse / mammoth) + heurísticas
+- [x] Endpoints: `POST /portfolio/upload`, `GET /portfolio/me/files`, `GET /portfolio/files/:id`
+
+**Status:** Upload salva binário; extração retorna resumo; download funciona ✅
+
+#### **Módulo 6 — Busca Full-Text (PostgreSQL)** ✅
+- [x] Coluna gerada `resume_search TSVECTOR` (pt_BR) + índice GIN
+- [x] Endpoint `GET /portfolio/search?q=&limit=&offset=`
+- [x] Implementação com `websearch_to_tsquery`, `ts_rank`, `ts_headline`
+- [x] Paginação e ordenação por relevância
+
+**Status:** Resultados ordenados com snippet; performance aceitável ✅
+
+#### **Módulo 7 — Chat 1:1 Seguro** ✅
+- [x] Modelos/relacionamentos para mensagens
+- [x] Rotas REST: listar conversas/mensagens; enviar mensagem
+- [x] Socket.IO autenticado (JWT), rooms por par com protocolo ACEITO
+- [x] Regras de autorização em tempo real
+
+**Status:** Mensagens fluem produtor↔prestador com vínculo válido ✅
+
+#### **🌟 Módulo EXTRA — Sistema de Avaliações (Reviews)** ✅ **NOVO**
+**Objetivo:** Permitir avaliações mútuas entre produtores e prestadores após eventos concluídos
+
+**Funcionalidades Implementadas:**
+- [x] Modelo `Review` com relacionamentos User, Event e Protocol
+- [x] `POST /reviews` - Criar avaliação (rating 1-5 + comentário)
+- [x] `GET /reviews/user/:userId` - Listar avaliações recebidas por um usuário
+- [x] `GET /reviews/me/received` - Avaliações que o usuário autenticado recebeu
+- [x] `GET /reviews/me/given` - Avaliações que o usuário autenticado deu
+- [x] Validações de negócio:
+  - Apenas um review por protocolo/evento
+  - Somente avaliação entre produtor e prestador com protocolo ACEITO
+  - Rating obrigatório (1-5 estrelas)
+  - Comentário opcional
+
+**Exemplo de criação de review:**
+```json
+{
+  "eventId": "uuid-do-evento",
+  "reviewedUserId": "uuid-do-usuario-avaliado",
+  "rating": 5,
+  "comment": "Excelente profissional! Trabalho impecável."
+}
+```
+
 ---
 
-### 🚧 Roadmap de Desenvolvimento (Módulos 5-14)
+### 🚧 Roadmap de Desenvolvimento (Módulos 8-14)
 
-#### **Módulo 5 — Portfólio & Upload de Currículo** 🔄 *Próximo*
-**Objetivo:** Armazenar currículos (PDF/DOCX) no PostgreSQL e extrair texto
-
-**Tarefas:**
-- [ ] Middleware de upload (memória; 5 MB; allowlist pdf/docx)
-- [ ] Verificação de MIME (file-type)
-- [ ] Modelo `ResumeFile` (metadados + BYTEA data + textExtraction)
-- [ ] Extração de texto (pdf-parse / mammoth) + heurísticas
-- [ ] Endpoints: `POST /portfolio/upload`, `GET /portfolio/me/files`, `GET /portfolio/files/:id`
-
-**Critério de Aceite:** Upload salva binário; extração retorna resumo; download funciona
-
----
-
-#### **Módulo 6 — Busca Full-Text (PostgreSQL)** 🔄 *Próximo*
-**Objetivo:** Pesquisar termos nos currículos extraídos
-
-**Tarefas:**
-- [ ] Coluna gerada `resume_search TSVECTOR` (pt_BR) + índice GIN
-- [ ] Endpoint `GET /portfolio/search?q=&limit=&offset=`
-- [ ] Implementação com `websearch_to_tsquery`, `ts_rank`, `ts_headline`
-- [ ] Paginação e ordenação por relevância
-
-**Critério de Aceite:** Resultados ordenados com snippet; performance aceitável
-
----
-
-#### **Módulo 7 — Chat 1:1 Seguro**
-**Objetivo:** Comunicação entre produtor e prestador com vínculo válido
-
-**Tarefas:**
-- [ ] Modelos/relacionamentos para mensagens
-- [ ] Rotas REST: listar conversas/mensagens; enviar mensagem
-- [ ] Socket.IO autenticado (JWT), rooms por par com protocolo ACEITO
-- [ ] Regras de autorização em tempo real
-
-**Critério de Aceite:** Mensagens fluem produtor↔prestador com vínculo válido
-
----
-
-#### **Módulo 8 — Segurança Aplicacional**
+#### **Módulo 8 — Segurança Aplicacional** 🔄 *Próximo*
 **Objetivo:** Fortalecer a superfície de ataque
 
 **Tarefas:**
@@ -192,7 +203,7 @@ npx prisma init
 **Tarefas:**
 - [ ] Logger estruturado (requestId, nível, tempo)
 - [ ] Métricas: tempo de extração, tamanho de arquivo, p95 de busca, taxa de erro
-- [ ] Logs específicos para upload, extração, busca, chat
+- [ ] Logs específicos para upload, extração, busca, chat, reviews
 
 **Critério de Aceite:** Trilhas de auditoria e métricas disponíveis
 
@@ -215,7 +226,7 @@ npx prisma init
 
 **Tarefas:**
 - [ ] Unit tests (services de extração/sumário)
-- [ ] Integração (auth → eventos → apply → status → upload → search → download)
+- [ ] Integração (auth → eventos → apply → status → upload → search → download → chat → reviews)
 - [ ] Fixtures PDF/DOCX pequenos
 - [ ] Coleção Postman (flows ponta-a-ponta)
 
@@ -276,12 +287,17 @@ npx prisma init
 ## 📊 Progresso Geral
 
 ```
-Módulos Completos: 4/14 (29%)
-Próximos: Módulo 5 (Portfólio) e Módulo 6 (Busca FTS)
+Módulos Completos: 8/14 (57%)
+Módulo Extra Implementado: Sistema de Avaliações ⭐
+Próximo: Módulo 8 (Segurança Aplicacional)
 ```
 
----
+**🎉 Conquistas Recentes:**
+- ✅ Sistema de Chat 1:1 em tempo real
+- ✅ Upload e busca de currículos
+- ⭐ **Sistema de avaliações mútuas implementado**
 
+---
 
 ## 👥 Contribuidores
 
