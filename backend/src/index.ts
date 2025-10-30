@@ -14,6 +14,7 @@ import userRoutes from "./routes/user.routes";
 import eventRoutes from "./routes/event.routes";
 import protocolRoutes from "./routes/protocol.routes";
 import portfolioRoutes from "./routes/portfolio.routes";
+import reviewRoutes from "./routes/review.routes"; // <<< reviews
 
 import chatRoutes from "./routes/chat.routes";
 import { initChatGateway } from "./sockets/chat.gateway";
@@ -29,6 +30,7 @@ app.use("/users", userRoutes);
 app.use("/events", eventRoutes);
 app.use("/protocols", protocolRoutes);
 app.use("/portfolio", portfolioRoutes);
+app.use("/reviews", reviewRoutes); // <<< mount reviews
 app.use("/chat", chatRoutes);
 
 app.use((_req, res) => res.status(404).json({ error: "NotFound" }));

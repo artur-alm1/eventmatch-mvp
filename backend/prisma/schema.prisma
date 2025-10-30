@@ -1,3 +1,5 @@
+// prisma/schema.prisma
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -30,12 +32,16 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relacionamentos
+  // Relacionamentos existentes
   events       Event[]       @relation("ProducerEvents") // produtor -> eventos
   candidatures Protocol[]
   portfolio    Portfolio?
   resumes      ResumeFile[]
   ChatMessage  ChatMessage[]
+
+  // >>> Relacionamentos com Review (corrige erro de relação ausente)
+  reviewsGiven    Review[] @relation("reviews_from") // avaliações que ESTE usuário enviou
+  reviewsReceived Review[] @relation("reviews_to") // avaliações que ESTE usuário recebeu
 }
 
 model Event {
@@ -51,6 +57,9 @@ model Event {
   producer   User   @relation("ProducerEvents", fields: [producerId], references: [id])
 
   protocols Protocol[]
+
+  // >>> Back-relation para Reviews (facilita consultas)
+  reviews Review[]
 }
 
 model Protocol {
@@ -66,6 +75,9 @@ model Protocol {
   user   User   @relation(fields: [userId], references: [id])
 
   chatMessages ChatMessage[]
+  Review       Review[]
+
+  @@unique([eventId, userId], name: "unique_protocol_per_event_user")
 }
 
 model ResumeFile {
@@ -106,4 +118,34 @@ model ChatMessage {
 
   @@index([protocolId, createdAt], name: "chat_protocol_created_idx")
   @@index([senderId, createdAt], name: "chat_sender_created_idx")
+}
+
+model Review {
+  id String @id @default(uuid())
+
+  // Quem enviou a avaliação
+  fromUserId String
+  fromUser   User   @relation("reviews_from", fields: [fromUserId], references: [id])
+
+  // Quem recebeu a avaliação
+  toUserId String
+  toUser   User   @relation("reviews_to", fields: [toUserId], references: [id])
+
+  // Evento/Protocolo relacionados
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id])
+
+  protocolId String?
+  protocol   Protocol? @relation(fields: [protocolId], references: [id])
+
+  // Notas
+  performance Int // 1..5
+  recommend   Int // 0..10
+  comment     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([fromUserId, toUserId, eventId], name: "unique_review_per_event_direction")
+  @@index([toUserId])
+  @@index([eventId])
 }
